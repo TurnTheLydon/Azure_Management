@@ -30,7 +30,7 @@
                         if ($vmsize -eq ''){
                         do {    
                         Write-Host "Getting list of AzureVM Sizes, Please make a selection and copy name"                    
-                        az vm list-skus --location southcentralus --size Standard_D --output table
+                        az vm list-skus --location $location --size Standard_D --output table
                         $vmsize = Read-Host "Please specify VM size"
                          } while ($vmsize -eq '')}
             $vmname = Read-Host "Enter name for Azure VM"
