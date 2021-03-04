@@ -1,5 +1,5 @@
 # Azure Baseline Configuration Tool
-# Jordan Lydon - 2021
+# TurnTheLydon - 2021
 
 # Actual variables and shit
     #Resource Group Settings
