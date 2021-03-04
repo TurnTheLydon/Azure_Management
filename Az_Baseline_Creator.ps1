@@ -133,7 +133,7 @@
                         $ManDomain = Read-Host = "Input Domain for DNS Services"
 
                         New-AzResource -ResourceId "/subscriptions/$AzSub/resourceGroups/$rg/providers/Microsoft.AAD/DomainServices/$ManDomain" `
-                        -ApiVersion "2017-06-01" `
+                        -ApiVersion 2021-01-01 `
                         -Location $location `
                         -Properties @{"DomainName"=$ManDomain; `
                             "SubnetId"="/subscriptions/$AzSub/resourceGroups/$rg/providers/Microsoft.Network/virtualNetworks/$Exist_VNet/subnets/DomainServices"} `
