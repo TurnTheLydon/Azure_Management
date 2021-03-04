@@ -56,7 +56,6 @@
                             New-AzResourceGroup -Name $rg -Location $location
                             $LANSub = New-AzVirtualNetworkSubnetConfig -Name $sub_name -AddressPrefix $ip_subnet 
                             New-AzVirtualNetwork -ResourceGroupName $rg -Location $location -Name $vnet_name -AddressPrefix $ip_range -Subnet $LANSub
-                            $NIC = New-AzNetworkInterface -Name $NICName$vmname -ResourceGroupName $rg -Location $location -SubnetId $sub_name[0].Id
                             $virtual_mac = New-AzVM -Name $vmname -ResourceGroupName $rg -Location $location -VirtualNetworkName $vnet_name -SubnetName $sub_name -size $vmsize
                             $virtual_mac = Set-AzVMOperatingSystem -VM $virtual_mac -Windows -ComputerName $vmname -ProvisionVMAgent -EnableAutoUpdate
                             $virtual_mac = Add-AzVMNetworkInterface -VM $virtual_mac -Id $Nic.Id
