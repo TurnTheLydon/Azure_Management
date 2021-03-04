@@ -67,3 +67,78 @@
                             }
                             New-AzVM -ResourceGroupName $rg -Location $location -VM $virtual_mac -AsJob -Verbose
                         }
+                        Write-Host "Configuration Completed. Please check https://portal.azure.com in a few moments to see all resources populate."
+# Configure Azure AD DNS Services
+    #Variabools
+        $enAADDS
+        $AADDSSub
+        $enAADDS = Read-Host "Do you need to configure Azure AD DNS Services? [Y/N]"
+                    if($enAADDS -eq 'Y'){
+                        Connect-AzAccount -UseDeviceAuthentication
+                        Connect-AzureAD
+                        New-AzureADServicePrincipal -AppId "2565bd9d-da50-47d4-8b85-4c97f669dc36"
+                        $GroupObjectId = Get-AzureADGroup `
+                        -Filter "DisplayName eq 'AAD DC Administrators'" | `
+                        Select-Object ObjectId
+                        if (!$GroupObjectId) {
+                            $GroupObjectId = New-AzureADGroup -DisplayName "AAD DC Administrators" `
+                              -Description "Delegated group to administer Azure AD Domain Services" `
+                              -SecurityEnabled $true `
+                              -MailEnabled $false `
+                              -MailNickName "AADDCAdministrators"
+                            }
+                          else {
+                            Write-Output "Admin group already exists."
+                          }
+                        Register-AzResourceProvider -ProviderNamespace Microsoft.AAD
+                        $AADDSSub = Read-Host "Please enter subnet for AAD DS (Must be different from LAN subnet. Prefer /28 or /29 for this vNet)"
+                        $ExistVNet = Get-AzVirtualNetwork -Name $vnet_name -ResourceGroupName $rg
+                        Add-AzVirtualNetworkSubnetConfig -Name AADDS -VirtualNetwork $ExistVNet -AddressPrefix $AADDSSub
+                        $ExistVNet | Set-AzVirtualNetwork
+
+                        $NSGName = "aaddsNSG"
+
+                        # Create a rule to allow inbound TCP port 3389 traffic from Microsoft secure access workstations for troubleshooting
+                        $nsg201 = New-AzNetworkSecurityRuleConfig -Name AllowRD `
+                            -Access Allow `
+                            -Protocol Tcp `
+                            -Direction Inbound `
+                            -Priority 201 `
+                            -SourceAddressPrefix CorpNetSaw `
+                            -SourcePortRange * `
+                            -DestinationAddressPrefix * `
+                            -DestinationPortRange 3389
+
+                        # Create a rule to allow TCP port 5986 traffic for PowerShell remote management
+                        $nsg301 = New-AzNetworkSecurityRuleConfig -Name AllowPSRemoting `
+                            -Access Allow `
+                            -Protocol Tcp `
+                            -Direction Inbound `
+                            -Priority 301 `
+                            -SourceAddressPrefix AzureActiveDirectoryDomainServices `
+                            -SourcePortRange * `
+                            -DestinationAddressPrefix * `
+                            -DestinationPortRange 5986
+
+                        # Create the network security group and rules
+                        $nsg = New-AzNetworkSecurityGroup -Name $NSGName -ResourceGroupName $rg -Location $location -SecurityRules $nsg201,$nsg301
+
+                        # Associate the network security group with the virtual network subnet
+                        Set-AzVirtualNetworkSubnetConfig -Name AADDS `
+                            -VirtualNetwork $ExistVNet `
+                            -AddressPrefix $AADDSSub `
+                            -NetworkSecurityGroup $nsg
+                        $ExistVNet | Set-AzVirtualNetwork
+                        $AzSub = Get-AzSubscription | ForEach-Object {$_.Id}
+                        $ManDomain = Read-Host = "Input Domain for DNS Services"
+
+                        New-AzResource -ResourceId "/subscriptions/$AzSub/resourceGroups/$rg/providers/Microsoft.AAD/DomainServices/$ManDomain" `
+                        -ApiVersion "2017-06-01" `
+                        -Location $location `
+                        -Properties @{"DomainName"=$ManDomain; `
+                            "SubnetId"="/subscriptions/$AzSub/resourceGroups/$rg/providers/Microsoft.Network/virtualNetworks/$Exist_VNet/subnets/DomainServices"} `
+                        -Force -Verbose
+                    }
+                    if ($enAADDS -eq 'N'){
+
+                    }
