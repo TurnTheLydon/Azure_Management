@@ -76,7 +76,7 @@
                                         New-AzVirtualNetwork -ResourceGroupName $rg -Location $location -Name $vnet_name -AddressPrefix $ip_range -Subnet $LANSub
                                         $virtual_mac = New-AzVM -Name $vmname -ResourceGroupName $rg -Location $location -VirtualNetworkName $vnet_name -SubnetName $sub_name -size $vmsize
                                         $virtual_mac = Set-AzVMOperatingSystem -VM $virtual_mac -Windows -ComputerName $vmname -ProvisionVMAgent -EnableAutoUpdate
-                                        $virtual_mac = Add-AzVMNetworkInterface -VM $virtual_mac -Id $Nic.Id
+                                        $virtual_mac = Add-AzVMNetworkInterface -VM $virtual_mac
                                         if ($vmtype -eq 'D') {
                                         $virtual_mac = Set-AzVMSourceImage -VM $virtual_mac -PublisherName 'MicrosoftWindowsServer' -Offer 'windows-10-20h2-vhd-server-prod-stage' -Skus 'datacenter-core-20h2-with-containers-smalldisk' -Version latest
                                         }
@@ -160,10 +160,25 @@
                                 if ($enAADDS -eq 'N'){
                     }
                     If ($AEmgmt -eq '2'){
+                            $location = Read-Host "Enter location for VM"
                             Write-Host = "Choose a Resource Group from below to add a new virtual machine to"
                             Get-AzResourceGroup | ForEach-Object {$_.ResourceGroupName}
-                            $addVM = Read-Host = "Enter selection"
-
+                            $rg = Read-Host = "Enter name of resource group to add VM to"
+                            Write-Host = "Choose VM size"
+                            az vm list-skus --location $location --size Standard_D --output table
+                            $vmsize = Read-Host "Enter type of VM you want to add"
+                            $vmname = Read-Host "Enter name for VM"
+                            $VMType = Read-Host "Is this a Desktop or Server? [D/S]"
+                            $virtual_mac = New-AzVM -Name $vmname -ResourceGroupName $rg -Location $location -size $vmsize
+                            $virtual_mac = Set-AzVMOperatingSystem -VM $virtual_mac -Windows -ComputerName $vmname -ProvisionVMAgent -EnableAutoUpdate
+                            $virtual_mac = Add-AzVMNetworkInterface -VM $virtual_mac
+                            if ($vmtype -eq 'D') {
+                            $virtual_mac = Set-AzVMSourceImage -VM $virtual_mac -PublisherName 'MicrosoftWindowsServer' -Offer 'windows-10-20h2-vhd-server-prod-stage' -Skus 'datacenter-core-20h2-with-containers-smalldisk' -Version latest
+                            }
+                            if  ($VMType -eq 'S'){
+                            $virtual_mac = Set-AzVMSourceImage -VM $virtual_mac -PublisherName 'MicrosoftWindowsServer' -Offer 'WindowsServer' -Skus '2019-Datacenter' -Version latest
+                            }
+                            New-AzVM -ResourceGroupName $rg -Location $location -VM $virtual_mac -AsJob -Verbose
                         }   
                     If ($AEmgmt -eq '3'){
                             #Write code for adding virtual subnet to existing environment
@@ -191,6 +206,6 @@
                     }
                     If ($AADMGMT -eq '5'){
                         #Write code to disable AAD account
-                    }
-            }
-                }
+        }
+    }
+}
