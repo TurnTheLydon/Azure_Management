@@ -23,7 +23,8 @@
             [2] Azure Active Directory
             Enter Selection"
 
-            Switch ($mgmt){
+            Switch ($mgmt)
+            {
                 1 {
                 $AEmgmt = Read-Host "Please select an option below
                 [1] Create new Azure baseline environment
@@ -35,7 +36,8 @@
                     Write-Host "Invalid selection, please try again"
                     $AEmgmt = Read-Host "Please select an option from the above list"
                 }
-                    Switch ($AEmgmt) {
+                    Switch ($AEmgmt) 
+                    {
                         1 {
                         Do {
                         $rg = Read-Host "Please enter name for Resource Group"
@@ -78,41 +80,53 @@
                                         $virtual_mac = New-AzVM -Name $vmname -ResourceGroupName $rg -Location $location -VirtualNetworkName $vnet_name -SubnetName $sub_name -size $vmsize
                                         $virtual_mac = Set-AzVMOperatingSystem -VM $virtual_mac -Windows -ComputerName $vmname -ProvisionVMAgent -EnableAutoUpdate
                                         $virtual_mac = Add-AzVMNetworkInterface -VM $virtual_mac
-                                        if ($vmtype -eq 'D') {
+                                        if ($vmtype -eq 'D') 
+                                        {
                                         $virtual_mac = Set-AzVMSourceImage -VM $virtual_mac -PublisherName 'MicrosoftWindowsServer' -Offer 'windows-10-20h2-vhd-server-prod-stage' -Skus 'datacenter-core-20h2-with-containers-smalldisk' -Version latest
                                         }
-                                        if  ($VMType -eq 'S'){
+                                        if  ($VMType -eq 'S')
+                                        {
                                         $virtual_mac = Set-AzVMSourceImage -VM $virtual_mac -PublisherName 'MicrosoftWindowsServer' -Offer 'WindowsServer' -Skus '2019-Datacenter' -Version latest
                                         }
                                         New-AzVM -ResourceGroupName $rg -Location $location -VM $virtual_mac -AsJob -Verbose
                                     }
                                     Write-Host "Configuration Completed. Please check https://portal.azure.com in a few moments to see all resources populate."
-                                }
-                     2 {
+                        }
+                        2 {
                             $location = Read-Host "Enter location for VM"
                             Write-Host = "Choose a Resource Group from below to add a new virtual machine to"
                             Get-AzResourceGroup | ForEach-Object {$_.ResourceGroupName}
                             $rg = Read-Host = "Enter name of resource group to add VM to"
                             Write-Host = "Choose VM size"
                             az vm list-skus --location $location --size Standard_D --output table
-                            $vmsize = Read-Host "Enter type of VM you want to add"
+                            $vmsize = Read-Host "Please specify VM size (Leave blank if unsure)"
+                                if ($vmsize -eq ''){
+                                do {    
+                                Write-Host "Getting list of AzureVM Sizes, Please make a selection and copy name"                    
+                                az vm list-skus --location $location --size Standard_D --output table
+                                $vmsize = Read-Host "Please specify VM size"
+                                } while ($vmsize -eq '')}
                             $vmname = Read-Host "Enter name for VM"
+                            Get-AzVirtualNetwork | ForEach-Object {$_.Name}
+                            $vnet_name = Read-Host "What virtual network would you like to add this machine to?"
                             $VMType = Read-Host "Is this a Desktop or Server? [D/S]"
-                            $virtual_mac = New-AzVM -Name $vmname -ResourceGroupName $rg -Location $location -size $vmsize
+                            $virtual_mac = New-AzVM -Name $vmname -ResourceGroupName $rg -Location $location -VirtualNetworkName $vnet_name -size $vmsize
                             $virtual_mac = Set-AzVMOperatingSystem -VM $virtual_mac -Windows -ComputerName $vmname -ProvisionVMAgent -EnableAutoUpdate
                             $virtual_mac = Add-AzVMNetworkInterface -VM $virtual_mac
-                            if ($vmtype -eq 'D') {
+                            if ($vmtype -eq 'D')
+                            {
                             $virtual_mac = Set-AzVMSourceImage -VM $virtual_mac -PublisherName 'MicrosoftWindowsServer' -Offer 'windows-10-20h2-vhd-server-prod-stage' -Skus 'datacenter-core-20h2-with-containers-smalldisk' -Version latest
                             }
-                            if  ($VMType -eq 'S'){
+                            if  ($VMType -eq 'S')
+                            {
                             $virtual_mac = Set-AzVMSourceImage -VM $virtual_mac -PublisherName 'MicrosoftWindowsServer' -Offer 'WindowsServer' -Skus '2019-Datacenter' -Version latest
                             }
                             New-AzVM -ResourceGroupName $rg -Location $location -VM $virtual_mac -AsJob -Verbose
                         }   
-                    3 {
+                        3 {
                             #Write code for adding virtual subnet to existing environment
-                            }
-                    4 {                                    # Configure Azure AD DNS Services
+                        }
+                        4 {# Configure Azure AD DNS Services
                         #Variabools
                             #$enAADDS
                             #$AADDSSub
@@ -124,14 +138,16 @@
                                 $GroupObjectId = Get-AzureADGroup `
                                 -Filter "DisplayName eq 'AAD DC Administrators'" | `
                                 Select-Object ObjectId
-                                if (!$GroupObjectId) {
+                                if (!$GroupObjectId)
+                                {
                                     $GroupObjectId = New-AzureADGroup -DisplayName "AAD DC Administrators" `
                                     -Description "Delegated group to administer Azure AD Domain Services" `
                                     -SecurityEnabled $true `
                                     -MailEnabled $false `
                                     -MailNickName "AADDCAdministrators"
-                                    }
-                                else {
+                                }
+                                else 
+                                {
                                     Write-Output "Admin group already exists."
                                 }
                                 Register-AzResourceProvider -ProviderNamespace Microsoft.AAD
@@ -183,33 +199,39 @@
                                     "SubnetId"="/subscriptions/$AzSub/resourceGroups/$rg/providers/Microsoft.Network/virtualNetworks/$Exist_VNet/subnets/DomainServices"} `
                                 -Force -Verbose
                             }
-                            if ($enAADDS -eq 'N'){
-                }
-            }
+                            if ($enAADDS -eq 'N')
+                            {
+                            }
                         }
                     }
-            2 {
-                $AADMGMT = Read-Host "What would you like to do?
-                [1] Create new Azure AD user
-                [2] Add existing Azure AD user to group
-                [3] Verify group membership for Azure AD user
-                [4] Change Azure AD user password
-                [5] Disbale Azure AD user password
-                Enter Selection"
-                    If ($AADMGMT -eq '1'){
+                }
+                2 {
+                    $AADMGMT = Read-Host "What would you like to do?
+                    [1] Create new Azure AD user
+                    [2] Add existing Azure AD user to group
+                    [3] Verify group membership for Azure AD user
+                    [4] Change Azure AD user password
+                    [5] Disbale Azure AD user password
+                    Enter Selection"
+                    If ($AADMGMT -eq '1')
+                    {
                         #Write code to create new user in AAD
                     }
-                    If ($AADMGMT -eq '2'){
+                    If ($AADMGMT -eq '2')
+                    {
                         #Write code to add user to AAD group
                     }
-                    If ($AADMGMT -eq '3'){
+                    If ($AADMGMT -eq '3')
+                    {
                         #Write code to check membership to AAD groups
                     }
-                    If ($AADMGMT -eq '4'){
+                    If ($AADMGMT -eq '4')
+                    {
                         #Write code to change password of AAD user
                     }
-                    If ($AADMGMT -eq '5'){
+                    If ($AADMGMT -eq '5')
+                    {
                         #Write code to disable AAD account
                     }
+                }
             }
-        }
