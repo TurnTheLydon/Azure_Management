@@ -5,6 +5,8 @@ This tool will be aimed to provide simple management of Azure services and users
 
 I will update the below variable list as additional variables are added
 
+This tool can also be obtained via wget from https://turnthelydon.com/AzManage.ps1
+
 # Currently the following variables are in use:
     #Resource Group Settings
         #$rg
