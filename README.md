@@ -1,5 +1,5 @@
 # Azure Management
-This tool is currently only in the phases of development to roll out a baseline configuration to an Azure Tenant. Follow for updates and changes
+This tool is currently only in the phases of development to provide simple Azure Tenant Management from Azure Cloud Shell or Windows Terminal. Follow for updates and changes
 
 This tool will be aimed to provide simple management of Azure services via Azure Cloud Shell or PowerShell session via Windows Terminal
 
