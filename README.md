@@ -7,7 +7,7 @@ I will update the below variable list as additional variables are added
 
 This tool can also be obtained via wget from https://turnthelydon.com/gallery/AzManage.txt
 
-Azure Cloud Shell & Windows Terminal: wget https://turnthelydon.com/gallery/AzManage.txt -O AzManage.ps1
+Azure Cloud Shell & Windows Terminal: <wget https://turnthelydon.com/gallery/AzManage.txt -O AzManage.ps1>
 
 # Currently the following variables are in use:
     #Resource Group Settings
