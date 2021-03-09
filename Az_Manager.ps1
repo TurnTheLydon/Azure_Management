@@ -1,4 +1,4 @@
-# Azure Baseline Configuration Tool
+# Azure Management Tool
 # TurnTheLydon - 2021
 
 # Actual variables and shit
