@@ -1,6 +1,8 @@
 # Azure Management
 This tool is currently only in the phases of development to provide simple Azure Tenant Management from Azure Cloud Shell or Windows Terminal. Follow for updates and changes
 
+** I am currently in the process of rewriting this tool in Azure CLI rather than PS for compatibility reasons within Azure. **
+
 This tool will be aimed to provide simple management of Azure services and users via Azure Cloud Shell or PowerShell session via Windows Terminal
 
 I will update the below variable list as additional variables are added
