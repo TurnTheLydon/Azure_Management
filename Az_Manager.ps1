@@ -1,5 +1,5 @@
 # Azure Management Tool
-# TurnTheLydon - 2021
+# TurnTheLydon - 2022
 
 # Actual variables and shit
     #Resource Group Settings
